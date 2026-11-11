@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emre Tufan vs Ömer Kerem Akbıyık FC27 Karşılaşma Database</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & Chakra Petch -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Chakra Petch', 'sans-serif'],
+                    },
+                    colors: {
+                        fc: {
+                            bg: '#070b14',
+                            card: '#0f172a',
+                            border: '#1e293b',
+                            p1: '#10b981', // Emerald
+                            p2: '#06b6d4', // Cyan
+                            accent: '#6366f1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #070b14;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.12) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+        .animate-draw {
+            animation: pulseGlow 0.35s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirmModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-md w-full p-6 shadow-2xl transform transition-all">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400 shrink-0">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                </div>
+                <h3 id="modalTitle" class="text-lg font-bold text-white">İşlemi Onayla</h3>
+            </div>
+            <p id="modalMessage" class="text-sm text-slate-300 mb-6 leading-relaxed"></p>
+            <div class="flex items-center justify-end gap-3">
+                <button id="modalCancelBtn" class="px-4 py-2.5 rounded-xl text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+                    Vazgeç
+                </button>
+                <button id="modalConfirmBtn" class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20 transition">
+                    Evet, Onayla
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISUAL TEAM PICKER MODAL (5 Big Leagues + Süper Lig + National Teams) -->
+    <div id="teamPickerModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 backdrop-blur-md p-2 sm:p-4">
+        <div class="bg-slate-900 border border-slate-700/90 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            
+            <!-- Modal Header & Player Switcher -->
+            <div class="p-4 sm:px-6 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 bg-slate-950/60">
+                <div class="flex items-center gap-3">
+                    <div id="pickerHeaderBadge" class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                        <i data-lucide="shield" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display font-bold text-base sm:text-lg text-white tracking-wide">FC 27 TAKIM & KULÜP VERİTABANI</h3>
+                        <p class="text-xs text-slate-400">5 Büyük Lig, Süper Lig ve Milli Takımlar arasından seçim yapın</p>
+                    </div>
+                </div>
+
+                <!-- Switch active slot inside modal -->
+                <div class="flex items-center gap-2">
+                    <div class="bg-slate-900 border border-slate-800 p-1 rounded-xl flex items-center gap-1">
+                        <button type="button" id="pickerTabP1" onclick="switchPickerTarget('p1')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span id="pickerTabP1Name">Emre</span>
+                        </button>
+                        <button type="button" id="pickerTabP2" onclick="switchPickerTarget('p2')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                            <span id="pickerTabP2Name">Ömer</span>
+                        </button>
+                    </div>
+                    <button type="button" onclick="closeTeamPicker()" class="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search & League Filter Bar -->
+            <div class="p-4 sm:px-6 border-b border-slate-800/80 space-y-3 bg-slate-900/90">
+                <div class="relative">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input 
+                        type="text" 
+                        id="teamSearchInput" 
+                        oninput="renderTeamPickerGrid()"
+                        placeholder="Takım, ülke veya kısaltma ara (Örn: Galatasaray, Real Madrid, Arsenal, Türkiye)..." 
+                        class="w-full bg-slate-950 border border-slate-700/80 rounded-xl pl-10 pr-24 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition"
+                    >
+                    <span id="pickerCountBadge" class="absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-slate-400 bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">
+                        147 Takım
+                    </span>
+                </div>
+
+                <!-- League Tabs -->
+                <div id="leagueTabsContainer" class="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Visual Team Grid -->
+            <div id="teamPickerGrid" class="p-4 sm:px-6 overflow-y-auto grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5 flex-1 content-start">
+                <!-- Populated dynamically via JS -->
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-3.5 sm:px-6 border-t border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-3">
+                <div class="flex items-center gap-3 sm:gap-5 text-xs overflow-x-auto">
+                    <div class="flex items-center gap-2">
+                        <span class="text-emerald-400 font-bold" id="footerP1Label">Emre:</span>
+                        <div id="footerP1Preview" class="flex items-center gap-1.5 font-semibold text-white"></div>
+                    </div>
+                    <span class="text-slate-600 font-display font-bold">VS</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-cyan-400 font-bold" id="footerP2Label">Ömer:</span>
+                        <div id="footerP2Preview" class="flex items-center gap-1.5 font-semibold text-white"></div>
+                    </div>
+                </div>
+                <button type="button" onclick="closeTeamPicker()" class="px-5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-500 hover:bg-emerald-400 text-slate-950 transition ml-auto">
+                    Tamamla
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Random Team Generator ("Kura Çek") Modal -->
+    <div id="randomTeamModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/85 backdrop-blur-sm p-4">
+        <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-xl w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                        <i data-lucide="dices" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-bold text-white">FC 27 Rastgele Takım Kurası</h3>
+                        <p class="text-xs text-slate-400">Kategoriye veya eşit yıldız gücüne göre kura çekin</p>
+                    </div>
+                </div>
+                <button onclick="closeRandomModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-slate-800">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Category Selector -->
+            <div class="flex flex-wrap gap-1.5 mb-5">
+                <button onclick="spinRandomTeams('elite')" id="randBtn_elite" class="rand-pool-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition">
+                    ⭐ 5 Yıldız Devler
+                </button>
+                <button onclick="spinRandomTeams('equal')" id="randBtn_equal" class="rand-pool-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition">
+                    ⚖️ Denk Güçler (Aynı Yıldız)
+                </button>
+                <button onclick="spinRandomTeams('superlig')" id="randBtn_superlig" class="rand-pool-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30 transition">
+                    🇹🇷 Süper Lig
+                </button>
+                <button onclick="spinRandomTeams('top5')" id="randBtn_top5" class="rand-pool-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-500/15 hover:bg-indigo-500/25 text-indigo-300 border border-indigo-500/30 transition">
+                    🏆 5 Büyük Lig
+                </button>
+                <button onclick="spinRandomTeams('national')" id="randBtn_national" class="rand-pool-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 transition">
+                    🌍 Milli Takımlar
+                </button>
+                <button onclick="spinRandomTeams('all')" id="randBtn_all" class="rand-pool-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                    🎲 Tümü (147)
+                </button>
+            </div>
+
+            <!-- Drawn Teams Showcase -->
+            <div id="randomDrawShowcase" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div class="bg-slate-950/90 border border-emerald-500/30 rounded-2xl p-4 flex flex-col items-center text-center">
+                    <span id="randP1Label" class="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2">EMRE</span>
+                    <div id="randP1Crest" class="mb-2.5"></div>
+                    <div id="randP1Team" class="text-base sm:text-lg font-display font-bold text-white">Real Madrid</div>
+                    <div id="randP1Meta" class="text-xs text-slate-400 mt-1"></div>
+                </div>
+                <div class="bg-slate-950/90 border border-cyan-500/30 rounded-2xl p-4 flex flex-col items-center text-center">
+                    <span id="randP2Label" class="text-xs font-bold text-cyan-400 uppercase tracking-wider mb-2">ÖMER</span>
+                    <div id="randP2Crest" class="mb-2.5"></div>
+                    <div id="randP2Team" class="text-base sm:text-lg font-display font-bold text-white">Manchester City</div>
+                    <div id="randP2Meta" class="text-xs text-slate-400 mt-1"></div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-3">
+                <button onclick="spinRandomTeams(lastRandomPool)" class="px-4 py-2.5 rounded-xl text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center gap-2 transition">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i> Tekrar Çek
+                </button>
+                <button onclick="applyRandomTeams()" class="px-5 py-2.5 rounded-xl text-sm font-bold bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 flex items-center gap-2 shadow-lg shadow-emerald-500/20 transition">
+                    <i data-lucide="check" class="w-4 h-4"></i> Maça Aktar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Top Bar -->
+    <header class="border-b border-slate-800/80 bg-slate-950/75 backdrop-blur-md sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+            <!-- Brand -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center text-slate-950 font-display font-bold text-xl shadow-lg shadow-emerald-500/20">
+                    FC
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-display font-bold text-lg sm:text-xl tracking-tight text-white">FC 27 REKABET VERİTABANI</h1>
+                        <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            147 TAKIM & LOGO
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400">5 Büyük Lig + Süper Lig + Milli Takımlar Skor ve İstatistik Sistemi</p>
+                </div>
+            </div>
+
+            <!-- Editable Player Names Bar -->
+            <div class="flex items-center gap-2 sm:gap-3 bg-slate-900/90 border border-slate-800 rounded-xl p-1.5 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center gap-1.5 flex-1 sm:flex-initial">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 ml-1.5 shrink-0"></span>
+                    <input 
+                        type="text" 
+                        id="p1NameInput" 
+                        value="Emre" 
+                        maxlength="18"
+                        aria-label="1. Oyuncu Adı"
+                        class="bg-transparent text-xs sm:text-sm font-semibold text-emerald-400 focus:text-white focus:bg-slate-800/80 rounded-lg px-2 py-1 w-full sm:w-28 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition"
+                        title="Oyuncu 1 adını değiştirmek için tıklayın"
+                    >
+                </div>
+                <span class="text-xs font-display font-bold text-slate-500 px-1">VS</span>
+                <div class="flex items-center gap-1.5 flex-1 sm:flex-initial">
+                    <input 
+                        type="text" 
+                        id="p2NameInput" 
+                        value="Ömer" 
+                        maxlength="18"
+                        aria-label="2. Oyuncu Adı"
+                        class="bg-transparent text-xs sm:text-sm font-semibold text-cyan-400 focus:text-white focus:bg-slate-800/80 rounded-lg px-2 py-1 w-full sm:w-28 text-right sm:text-left focus:outline-none focus:ring-1 focus:ring-cyan-500 transition"
+                        title="Oyuncu 2 adını değiştirmek için tıklayın"
+                    >
+                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 mr-1.5 shrink-0"></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 py-6 flex-1 space-y-6">
+
+        <!-- Sample Data Notice Banner -->
+        <div id="sampleBanner" class="hidden bg-indigo-950/40 border border-indigo-500/30 rounded-2xl p-3.5 sm:px-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                </div>
+                <p class="text-xs sm:text-sm text-indigo-200">
+                    <strong class="font-semibold text-white">Önizleme Modu:</strong> İstatistiklerin ve kulüp logolarının nasıl göründüğünü incelemeniz için örnek maçlar yüklendi.
+                </p>
+            </div>
+            <button onclick="confirmClearAll('Örnek maçları silip sıfırdan kendi veritabanınıza başlamak istiyor musunuz?')" class="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-500 hover:bg-indigo-400 text-slate-950 shrink-0 transition self-end sm:self-auto">
+                Örnek Verileri Temizle
+            </button>
+        </div>
+
+        <!-- TOP GRID: New Match Entry (Left) + Live H2H Summary (Right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- 1. NEW MATCH ENTRY FORM WITH VISUAL TEAM CARDS (5 cols on desktop) -->
+            <section class="lg:col-span-5 bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        </div>
+                        <h2 class="font-display font-bold text-base sm:text-lg text-white tracking-wide">YENİ MAÇ KAYDI</h2>
+                    </div>
+                    <button type="button" onclick="openRandomModal()" class="text-xs font-semibold text-indigo-300 hover:text-white bg-indigo-500/15 hover:bg-indigo-500/25 border border-indigo-500/30 rounded-xl px-3 py-1.5 flex items-center gap-1.5 transition">
+                        <i data-lucide="dices" class="w-3.5 h-3.5"></i>
+                        <span>Kura Çek</span>
+                    </button>
+                </div>
+
+                <form id="matchForm" class="space-y-4">
+                    <!-- Hidden inputs storing selected team names -->
+                    <input type="hidden" id="p1Team" value="Real Madrid">
+                    <input type="hidden" id="p2Team" value="Manchester City">
+
+                    <!-- Player 1 Match Box -->
+                    <div class="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-3.5 hover:border-emerald-500/40 transition">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <span id="formP1Label" class="text-xs font-bold uppercase tracking-wider text-emerald-400">EMRE</span>
+                            <button type="button" onclick="openTeamPicker('p1')" class="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 transition">
+                                <i data-lucide="layout-grid" class="w-3 h-3"></i>
+                                <span>Takım Seç / Değiştir</span>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-3">
+                            <!-- Clickable Selected Team Showcase Card -->
+                            <div onclick="openTeamPicker('p1')" class="flex items-center gap-3 flex-1 min-w-0 cursor-pointer bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-2.5 transition group" title="Takımı değiştirmek için tıklayın">
+                                <div id="p1SelectedCrest" class="shrink-0"></div>
+                                <div class="min-w-0 flex-1">
+                                    <div id="p1SelectedName" class="font-bold text-sm sm:text-base text-white truncate group-hover:text-emerald-300 transition">Real Madrid</div>
+                                    <div id="p1SelectedMeta" class="text-[11px] text-slate-400 truncate mt-0.5">🇪🇸 La Liga • ★★★★★</div>
+                                </div>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 group-hover:text-emerald-400 shrink-0"></i>
+                            </div>
+
+                            <!-- Score Stepper P1 -->
+                            <div class="flex items-center bg-slate-900 border border-slate-700/80 rounded-xl p-1 shrink-0">
+                                <button type="button" onclick="adjustScore('p1Goals', -1)" class="w-8 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-base active:scale-95 transition" aria-label="Gol Azalt">−</button>
+                                <input 
+                                    type="number" 
+                                    id="p1Goals" 
+                                    value="0" 
+                                    min="0" 
+                                    max="99" 
+                                    required
+                                    class="w-10 text-center bg-transparent font-display font-bold text-2xl text-emerald-400 focus:outline-none"
+                                >
+                                <button type="button" onclick="adjustScore('p1Goals', 1)" class="w-8 h-9 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 flex items-center justify-center font-bold text-base active:scale-95 transition" aria-label="Gol Artır">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Favorite Teams Chips with Mini Logos for P1 -->
+                        <div id="p1QuickTeams" class="flex flex-wrap gap-1.5 mt-3"></div>
+                    </div>
+
+                    <!-- Player 2 Match Box -->
+                    <div class="bg-slate-950/70 border border-slate-800/90 rounded-2xl p-3.5 hover:border-cyan-500/40 transition">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <span id="formP2Label" class="text-xs font-bold uppercase tracking-wider text-cyan-400">ÖMER</span>
+                            <button type="button" onclick="openTeamPicker('p2')" class="text-[11px] font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20 transition">
+                                <i data-lucide="layout-grid" class="w-3 h-3"></i>
+                                <span>Takım Seç / Değiştir</span>
+                            </button>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-3">
+                            <!-- Clickable Selected Team Showcase Card -->
+                            <div onclick="openTeamPicker('p2')" class="flex items-center gap-3 flex-1 min-w-0 cursor-pointer bg-slate-900/90 hover:bg-slate-800/80 border border-slate-800 rounded-xl p-2.5 transition group" title="Takımı değiştirmek için tıklayın">
+                                <div id="p2SelectedCrest" class="shrink-0"></div>
+                                <div class="min-w-0 flex-1">
+                                    <div id="p2SelectedName" class="font-bold text-sm sm:text-base text-white truncate group-hover:text-cyan-300 transition">Manchester City</div>
+                                    <div id="p2SelectedMeta" class="text-[11px] text-slate-400 truncate mt-0.5">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League • ★★★★★</div>
+                                </div>
+                                <i data-lucide="chevron-down" class="w-4 h-4 text-slate-500 group-hover:text-cyan-400 shrink-0"></i>
+                            </div>
+
+                            <!-- Score Stepper P2 -->
+                            <div class="flex items-center bg-slate-900 border border-slate-700/80 rounded-xl p-1 shrink-0">
+                                <button type="button" onclick="adjustScore('p2Goals', -1)" class="w-8 h-9 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center font-bold text-base active:scale-95 transition" aria-label="Gol Azalt">−</button>
+                                <input 
+                                    type="number" 
+                                    id="p2Goals" 
+                                    value="0" 
+                                    min="0" 
+                                    max="99" 
+                                    required
+                                    class="w-10 text-center bg-transparent font-display font-bold text-2xl text-cyan-400 focus:outline-none"
+                                >
+                                <button type="button" onclick="adjustScore('p2Goals', 1)" class="w-8 h-9 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 flex items-center justify-center font-bold text-base active:scale-95 transition" aria-label="Gol Artır">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Favorite Teams Chips with Mini Logos for P2 -->
+                        <div id="p2QuickTeams" class="flex flex-wrap gap-1.5 mt-3"></div>
+                    </div>
+
+                    <!-- Match Finish Type & Date Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Maç Sonucu Tipi</label>
+                            <select id="matchType" onchange="handleMatchTypeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                                <option value="Normal Süre">⏱️ Normal Süre (90')</option>
+                                <option value="Penaltılar">🎯 Penaltılar (PEN)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1">Tarih</label>
+                            <input 
+                                type="date" 
+                                id="matchDate" 
+                                required
+                                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500"
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Conditional Penalty Shootout Winner Selector -->
+                    <div id="penaltyWinnerBox" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
+                        <label class="block text-xs font-semibold text-amber-300 mb-2 flex items-center gap-1.5">
+                            <i data-lucide="award" class="w-4 h-4"></i>
+                            <span>Penaltı Atışlarını Kim Kazandı?</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" id="penWinP1Btn" onclick="setPenaltyWinner('p1')" class="py-2 px-3 rounded-lg text-xs font-bold border border-emerald-500 bg-emerald-500/20 text-emerald-300 transition">
+                                Emre Kazandı
+                            </button>
+                            <button type="button" id="penWinP2Btn" onclick="setPenaltyWinner('p2')" class="py-2 px-3 rounded-lg text-xs font-bold border border-slate-700 bg-slate-900 text-slate-400 transition">
+                                Ömer Kazandı
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Optional Match Note -->
+                    <div>
+                        <input 
+                            type="text" 
+                            id="matchNote" 
+                            maxlength="60"
+                            placeholder="Maç notu (Opsiyonel: 90+3 röveşata golü, kırmızı kart vb.)" 
+                            class="w-full bg-slate-950/70 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 placeholder-slate-500 focus:outline-none focus:border-slate-700"
+                        >
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full py-3 px-4 rounded-xl font-display font-bold text-sm sm:text-base tracking-wide bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 shadow-lg shadow-emerald-500/20 active:scale-[0.99] transition flex items-center justify-center gap-2">
+                        <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+                        <span>MAÇI VERİTABANINA KAYDET</span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- 2. HEAD-TO-HEAD DASHBOARD (7 cols on desktop) -->
+            <section class="lg:col-span-7 space-y-5">
+                
+                <!-- Main Rivalry Tug-of-War Card -->
+                <div class="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="swords" class="w-5 h-5 text-emerald-400"></i>
+                            <h2 class="font-display font-bold text-base sm:text-lg text-white tracking-wide">GENEL REKABET DURUMU</h2>
+                        </div>
+                        <span id="totalMatchesBadge" class="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                            0 Maç
+                        </span>
+                    </div>
+
+                    <!-- Big Scoreboard Numbers -->
+                    <div class="grid grid-cols-3 items-center text-center my-4">
+                        <div>
+                            <div id="h2hP1Name" class="text-xs sm:text-sm font-bold text-emerald-400 uppercase tracking-wider truncate px-1">EMRE</div>
+                            <div id="h2hP1Wins" class="font-display font-bold text-4xl sm:text-5xl text-white mt-1">0</div>
+                            <div id="h2hP1WinRate" class="text-xs text-slate-400 mt-0.5">%0 Galibiyet</div>
+                        </div>
+
+                        <div class="border-x border-slate-800/80 py-2">
+                            <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">BERABERE</div>
+                            <div id="h2hDraws" class="font-display font-bold text-2xl sm:text-3xl text-slate-300 mt-1">0</div>
+                            <div id="h2hDrawRate" class="text-[11px] text-slate-500 mt-0.5">%0</div>
+                        </div>
+
+                        <div>
+                            <div id="h2hP2Name" class="text-xs sm:text-sm font-bold text-cyan-400 uppercase tracking-wider truncate px-1">ÖMER</div>
+                            <div id="h2hP2Wins" class="font-display font-bold text-4xl sm:text-5xl text-white mt-1">0</div>
+                            <div id="h2hP2WinRate" class="text-xs text-slate-400 mt-0.5">%0 Galibiyet</div>
+                        </div>
+                    </div>
+
+                    <!-- Tug-of-War Progress Bar -->
+                    <div class="h-3.5 w-full bg-slate-950 rounded-full overflow-hidden flex p-0.5 border border-slate-800 gap-0.5">
+                        <div id="barP1" class="h-full bg-emerald-500 rounded-l-full transition-all duration-500" style="width: 50%"></div>
+                        <div id="barDraw" class="h-full bg-slate-600 transition-all duration-500" style="width: 0%"></div>
+                        <div id="barP2" class="h-full bg-cyan-500 rounded-r-full transition-all duration-500" style="width: 50%"></div>
+                    </div>
+
+                    <!-- Current Streak & Last 5 Form -->
+                    <div class="mt-4 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-400 font-medium">Aktif Seri:</span>
+                            <span id="activeStreakBadge" class="px-2.5 py-1 rounded-lg font-semibold bg-slate-800 text-slate-200">Henüz maç yok</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-400 font-medium">Son 5 Maç Kazananı:</span>
+                            <div id="last5Container" class="flex items-center gap-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Head-to-Head Stat Comparison Grid -->
+                <div class="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4 text-cyan-400"></i>
+                        <span>DETAYLI İSTATİSTİK KARŞILAŞTIRMASI</span>
+                    </h3>
+
+                    <div class="space-y-3.5">
+                        <div class="grid grid-cols-3 items-center bg-slate-950/60 border border-slate-800/60 rounded-xl px-4 py-2.5">
+                            <div id="statP1Goals" class="font-display font-bold text-lg sm:text-xl text-emerald-400">0</div>
+                            <div class="text-center text-xs font-medium text-slate-400">Toplam Atılan Gol</div>
+                            <div id="statP2Goals" class="font-display font-bold text-lg sm:text-xl text-cyan-400 text-right">0</div>
+                        </div>
+
+                        <div class="grid grid-cols-3 items-center bg-slate-950/60 border border-slate-800/60 rounded-xl px-4 py-2.5">
+                            <div id="statP1Gpm" class="font-display font-bold text-lg sm:text-xl text-emerald-400">0.00</div>
+                            <div class="text-center text-xs font-medium text-slate-400">Maç Başı Gol Ortalaması</div>
+                            <div id="statP2Gpm" class="font-display font-bold text-lg sm:text-xl text-cyan-400 text-right">0.00</div>
+                        </div>
+
+                        <div class="grid grid-cols-3 items-center bg-slate-950/60 border border-slate-800/60 rounded-xl px-4 py-2.5">
+                            <div id="statP1Clean" class="font-display font-bold text-lg sm:text-xl text-emerald-400">0</div>
+                            <div class="text-center text-xs font-medium text-slate-400">Gol Yemeden Maç (Clean Sheet)</div>
+                            <div id="statP2Clean" class="font-display font-bold text-lg sm:text-xl text-cyan-400 text-right">0</div>
+                        </div>
+
+                        <div class="grid grid-cols-3 items-center bg-slate-950/60 border border-slate-800/60 rounded-xl px-4 py-2.5 gap-2">
+                            <div id="statP1Biggest" class="text-xs sm:text-sm font-semibold text-emerald-300 truncate">-</div>
+                            <div class="text-center text-xs font-medium text-slate-400">En Farklı Galibiyet</div>
+                            <div id="statP2Biggest" class="text-xs sm:text-sm font-semibold text-cyan-300 text-right truncate">-</div>
+                        </div>
+
+                        <div class="grid grid-cols-3 items-center bg-slate-950/60 border border-slate-800/60 rounded-xl px-4 py-2.5 gap-2">
+                            <div id="statP1FavTeam" class="flex items-center gap-2 text-xs sm:text-sm font-semibold text-white truncate">-</div>
+                            <div class="text-center text-xs font-medium text-slate-400">Favori Takım</div>
+                            <div id="statP2FavTeam" class="flex items-center justify-end gap-2 text-xs sm:text-sm font-semibold text-white truncate">-</div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+
+        <!-- 3. TEAM PERFORMANCE BREAKDOWN WITH LOGOS -->
+        <section class="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
+                        <i data-lucide="shield" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-display font-bold text-base sm:text-lg text-white tracking-wide">TAKIM BAZLI PERFORMANS KARNESİ</h2>
+                        <p class="text-xs text-slate-400">Hangi kulüp veya milli takımla kaç maç oynadınız ve galibiyet yüzdeniz nedir?</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Player 1 Teams Table -->
+                <div class="bg-slate-950/50 border border-slate-800/80 rounded-xl p-4">
+                    <h3 id="teamTableP1Title" class="text-xs font-bold uppercase tracking-wider text-emerald-400 mb-3">EMRE — TAKIM İSTATİSTİKLERİ</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase">
+                                    <th class="py-2 pr-2">Takım</th>
+                                    <th class="py-2 px-2 text-center" title="Oynanan Maç">OM</th>
+                                    <th class="py-2 px-2 text-center" title="Galibiyet / Beraberlik / Mağlubiyet">G-B-M</th>
+                                    <th class="py-2 px-2 text-center" title="Atılan / Yenilen Gol">AG:YG</th>
+                                    <th class="py-2 pl-2 text-right">Galibiyet %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p1TeamStatsBody" class="divide-y divide-slate-800/50 text-xs"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Player 2 Teams Table -->
+                <div class="bg-slate-950/50 border border-slate-800/80 rounded-xl p-4">
+                    <h3 id="teamTableP2Title" class="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-3">ÖMER — TAKIM İSTATİSTİKLERİ</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-slate-800 text-[11px] text-slate-400 uppercase">
+                                    <th class="py-2 pr-2">Takım</th>
+                                    <th class="py-2 px-2 text-center" title="Oynanan Maç">OM</th>
+                                    <th class="py-2 px-2 text-center" title="Galibiyet / Beraberlik / Mağlubiyet">G-B-M</th>
+                                    <th class="py-2 px-2 text-center" title="Atılan / Yenilen Gol">AG:YG</th>
+                                    <th class="py-2 pl-2 text-right">Galibiyet %</th>
+                                </tr>
+                            </thead>
+                            <tbody id="p2TeamStatsBody" class="divide-y divide-slate-800/50 text-xs"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. MATCH HISTORY DATABASE LOG & EXPORT -->
+        <section class="bg-slate-900/90 border border-slate-800/90 rounded-2xl p-5 shadow-xl">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
+                        <i data-lucide="database" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-display font-bold text-base sm:text-lg text-white tracking-wide">MAÇ GEÇMİŞİ VERİTABANI</h2>
+                        <p class="text-xs text-slate-400">Kaydedilen tüm karşılaşmalar, takım logoları, filtreleme ve Excel/Yedekleme araçları</p>
+                    </div>
+                </div>
+
+                <!-- Database Backup & Export Toolbar -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="exportCSV()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 transition">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                        <span>Excel (CSV) İndir</span>
+                    </button>
+                    <button onclick="exportJSON()" class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        <span>Yedek İndir</span>
+                    </button>
+                    <label class="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 cursor-pointer transition">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        <span>Yedek Yükle</span>
+                        <input type="file" id="jsonFileInput" accept=".json" onchange="importJSON(event)" class="hidden">
+                    </label>
+                    <button onclick="confirmClearAll('Tüm maç kayıtlarını kalıcı olarak silmek istediğinize emin misiniz?')" class="px-3 py-2 rounded-xl text-xs font-semibold bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 flex items-center gap-1.5 transition">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>Sıfırla</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search & Winner Filter Bar -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                <div class="sm:col-span-2 relative">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        oninput="renderAll()" 
+                        placeholder="Takım adı, tarih veya maç notu ara..." 
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2 text-xs sm:text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    >
+                </div>
+                <div>
+                    <select id="winnerFilter" onchange="renderAll()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <option value="all">Tüm Sonuçlar</option>
+                        <option value="p1" id="filterOptP1">Emre Galibiyetleri</option>
+                        <option value="p2" id="filterOptP2">Ömer Galibiyetleri</option>
+                        <option value="draw">Beraberlikler</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Matches Table -->
+            <div class="overflow-x-auto rounded-xl border border-slate-800/80 bg-slate-950/40">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800 bg-slate-900/60 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
+                            <th class="py-3 px-3">#</th>
+                            <th class="py-3 px-3">Tarih</th>
+                            <th id="thP1" class="py-3 px-3 text-right">Emre (Takım)</th>
+                            <th class="py-3 px-3 text-center">Skor</th>
+                            <th id="thP2" class="py-3 px-3">Ömer (Takım)</th>
+                            <th class="py-3 px-3">Kazanan</th>
+                            <th class="py-3 px-3">Not / Süre</th>
+                            <th class="py-3 px-3 text-right">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matchHistoryBody" class="divide-y divide-slate-800/60 text-xs sm:text-sm"></tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 py-5 text-center text-xs text-slate-500">
+        Verileriniz tarayıcınızın yerel hafızasında (<code class="text-slate-400">localStorage</code>) güvenle saklanır. Cihaz değiştirmeden önce yedek almayı unutmayın.
+    </footer>
+
+    <!-- Application Logic -->
+    <script>
+        // --- STORAGE KEYS (Updated to v2 so old broken cache is ignored) ---
+        const STORAGE_KEY_MATCHES = 'fc_rivalry_matches_v2';
+        const STORAGE_KEY_PLAYERS = 'fc_rivalry_players_v2';
+        const STORAGE_KEY_SAMPLE = 'fc_rivalry_is_sample_v2';
+
+        // --- LEAGUE METADATA ---
+        const LEAGUES = [
+            { id: 'all', name: 'Tümü', badge: '🔥' },
+            { id: '5star', name: '5 Yıldız Devler', badge: '⭐' },
+            { id: 'superlig', name: 'Süper Lig', badge: '🇹🇷' },
+            { id: 'premier', name: 'Premier League', badge: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+            { id: 'laliga', name: 'La Liga', badge: '🇪🇸' },
+            { id: 'seriea', name: 'Serie A', badge: '🇮🇹' },
+            { id: 'bundesliga', name: 'Bundesliga', badge: '🇩🇪' },
+            { id: 'ligue1', name: 'Ligue 1', badge: '🇫🇷' },
+            { id: 'national', name: 'Milli Takımlar', badge: '🌍' }
+        ];
+
+        const LEAGUE_LABELS = {
+            superlig: '🇹🇷 Süper Lig',
+            premier: '🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League',
+            laliga: '🇪🇸 La Liga',
+            seriea: '🇮🇹 Serie A',
+            bundesliga: '🇩🇪 Bundesliga',
+            ligue1: '🇫🇷 Ligue 1',
+            national: '🌍 Milli Takım'
+        };
+
+        // --- COMPLETE FC 27 TEAM & LOGO DATABASE (147 TEAMS) ---
+        const TEAMS_DB = [
+            // ================= 🇹🇷 TÜRKİYE SÜPER LİG (20) =================
+            { name: 'Galatasaray', league: 'superlig', stars: 4.5, espnId: 432, c1: '#A90432', c2: '#FDB912', code: 'GS', pattern: 'halves' },
+            { name: 'Fenerbahçe', league: 'superlig', stars: 4.5, espnId: 436, c1: '#002D72', c2: '#FFED00', code: 'FB', pattern: 'stripes' },
+            { name: 'Beşiktaş', league: 'superlig', stars: 4.0, espnId: 1895, c1: '#111111', c2: '#FFFFFF', code: 'BJK', pattern: 'stripes' },
+            { name: 'Trabzonspor', league: 'superlig', stars: 4.0, espnId: 991, c1: '#800020', c2: '#38B6FF', code: 'TS', pattern: 'stripes' },
+            { name: 'Başakşehir', league: 'superlig', stars: 3.5, espnId: 7918, c1: '#F37021', c2: '#002C5F', code: 'İBFK', pattern: 'halves' },
+            { name: 'Samsunspor', league: 'superlig', stars: 3.5, espnId: 554, c1: '#E30613', c2: '#FFFFFF', code: 'SAM', pattern: 'diag' },
+            { name: 'Göztepe', league: 'superlig', stars: 3.5, espnId: 3705, c1: '#FFD100', c2: '#E30613', code: 'GÖZ', pattern: 'halves' },
+            { name: 'Eyüpspor', league: 'superlig', stars: 3.5, espnId: null, c1: '#5B2C6F', c2: '#F4D03F', code: 'EYP', pattern: 'stripes' },
+            { name: 'Sivasspor', league: 'superlig', stars: 3.5, espnId: 3699, c1: '#E30613', c2: '#FFFFFF', code: 'SVS', pattern: 'stripes' },
+            { name: 'Antalyaspor', league: 'superlig', stars: 3.5, espnId: 3702, c1: '#E30613', c2: '#FFFFFF', code: 'ANT', pattern: 'halves' },
+            { name: 'Kasımpaşa', league: 'superlig', stars: 3.5, espnId: 6897, c1: '#004B93', c2: '#FFFFFF', code: 'KAS', pattern: 'stripes' },
+            { name: 'Alanyaspor', league: 'superlig', stars: 3.5, espnId: 11728, c1: '#F58220', c2: '#008542', code: 'ALN', pattern: 'halves' },
+            { name: 'Çaykur Rizespor', league: 'superlig', stars: 3.5, espnId: 3701, c1: '#008542', c2: '#0054A6', code: 'RİZ', pattern: 'stripes' },
+            { name: 'Gaziantep FK', league: 'superlig', stars: 3.5, espnId: 19660, c1: '#E30613', c2: '#111111', code: 'GFK', pattern: 'halves' },
+            { name: 'Konyaspor', league: 'superlig', stars: 3.5, espnId: 3698, c1: '#008542', c2: '#FFFFFF', code: 'KON', pattern: 'stripes' },
+            { name: 'Kayserispor', league: 'superlig', stars: 3.5, espnId: 3700, c1: '#E30613', c2: '#FFD100', code: 'KAY', pattern: 'halves' },
+            { name: 'Hatayspor', league: 'superlig', stars: 3.5, espnId: 20686, c1: '#800020', c2: '#FFFFFF', code: 'HTY', pattern: 'stripes' },
+            { name: 'Adana Demirspor', league: 'superlig', stars: 3.5, espnId: 12272, c1: '#0038A8', c2: '#38B6FF', code: 'ADS', pattern: 'stripes' },
+            { name: 'Bodrum FK', league: 'superlig', stars: 3.5, espnId: null, c1: '#008542', c2: '#FFFFFF', code: 'BDR', pattern: 'halves' },
+            { name: 'Kocaelispor', league: 'superlig', stars: 3.5, espnId: null, c1: '#008542', c2: '#111111', code: 'KOC', pattern: 'stripes' },
+
+            // ================= 🏴󠁧󠁢󠁥󠁮󠁧󠁿 PREMIER LEAGUE (20) =================
+            { name: 'Manchester City', league: 'premier', stars: 5.0, espnId: 382, c1: '#6CABDD', c2: '#1C2C5B', code: 'MCI', pattern: 'halves' },
+            { name: 'Arsenal', league: 'premier', stars: 5.0, espnId: 359, c1: '#EF0107', c2: '#FFFFFF', code: 'ARS', pattern: 'halves' },
+            { name: 'Liverpool', league: 'premier', stars: 5.0, espnId: 364, c1: '#C8102E', c2: '#F6EB61', code: 'LIV', pattern: 'halves' },
+            { name: 'Chelsea', league: 'premier', stars: 4.5, espnId: 363, c1: '#034694', c2: '#DBA111', code: 'CHE', pattern: 'halves' },
+            { name: 'Manchester United', league: 'premier', stars: 4.5, espnId: 360, c1: '#DA291C', c2: '#FBE122', code: 'MUN', pattern: 'halves' },
+            { name: 'Tottenham Hotspur', league: 'premier', stars: 4.5, espnId: 367, c1: '#132257', c2: '#FFFFFF', code: 'TOT', pattern: 'halves' },
+            { name: 'Newcastle United', league: 'premier', stars: 4.5, espnId: 361, c1: '#241F20', c2: '#FFFFFF', code: 'NEW', pattern: 'stripes' },
+            { name: 'Aston Villa', league: 'premier', stars: 4.5, espnId: 362, c1: '#670E36', c2: '#95BFE5', code: 'AVL', pattern: 'halves' },
+            { name: 'Brighton', league: 'premier', stars: 4.0, espnId: 331, c1: '#0057B8', c2: '#FFFFFF', code: 'BHA', pattern: 'stripes' },
+            { name: 'West Ham United', league: 'premier', stars: 4.0, espnId: 371, c1: '#7A263A', c2: '#1BB1E7', code: 'WHU', pattern: 'halves' },
+            { name: 'Crystal Palace', league: 'premier', stars: 4.0, espnId: 384, c1: '#1B458F', c2: '#C4122E', code: 'CRY', pattern: 'stripes' },
+            { name: 'Fulham', league: 'premier', stars: 4.0, espnId: 370, c1: '#111111', c2: '#FFFFFF', code: 'FUL', pattern: 'halves' },
+            { name: 'Brentford', league: 'premier', stars: 4.0, espnId: 337, c1: '#E30613', c2: '#FFFFFF', code: 'BRE', pattern: 'stripes' },
+            { name: 'Bournemouth', league: 'premier', stars: 4.0, espnId: 349, c1: '#DA291C', c2: '#111111', code: 'BOU', pattern: 'stripes' },
+            { name: 'Wolverhampton', league: 'premier', stars: 4.0, espnId: 380, c1: '#FDB913', c2: '#231F20', code: 'WOL', pattern: 'halves' },
+            { name: 'Everton', league: 'premier', stars: 4.0, espnId: 368, c1: '#003399', c2: '#FFFFFF', code: 'EVE', pattern: 'halves' },
+            { name: 'Nottingham Forest', league: 'premier', stars: 4.0, espnId: 393, c1: '#DD0000', c2: '#FFFFFF', code: 'NFO', pattern: 'halves' },
+            { name: 'Leicester City', league: 'premier', stars: 3.5, espnId: 375, c1: '#003090', c2: '#FDBE11', code: 'LEI', pattern: 'halves' },
+            { name: 'Ipswich Town', league: 'premier', stars: 3.5, espnId: 373, c1: '#3A64A3', c2: '#FFFFFF', code: 'IPS', pattern: 'halves' },
+            { name: 'Southampton', league: 'premier', stars: 3.5, espnId: 376, c1: '#D71920', c2: '#FFFFFF', code: 'SOU', pattern: 'stripes' },
+
+            // ================= 🇪🇸 LA LIGA (20) =================
+            { name: 'Real Madrid', league: 'laliga', stars: 5.0, espnId: 86, c1: '#FEBE10', c2: '#00529F', code: 'RMA', pattern: 'diag' },
+            { name: 'Barcelona', league: 'laliga', stars: 5.0, espnId: 83, c1: '#004D98', c2: '#A50044', code: 'BAR', pattern: 'stripes' },
+            { name: 'Atlético Madrid', league: 'laliga', stars: 4.5, espnId: 1068, c1: '#CB3524', c2: '#272E61', code: 'ATM', pattern: 'stripes' },
+            { name: 'Athletic Bilbao', league: 'laliga', stars: 4.5, espnId: 93, c1: '#EE2523', c2: '#FFFFFF', code: 'ATH', pattern: 'stripes' },
+            { name: 'Real Sociedad', league: 'laliga', stars: 4.5, espnId: 89, c1: '#0067B1', c2: '#FFFFFF', code: 'RSO', pattern: 'stripes' },
+            { name: 'Villarreal', league: 'laliga', stars: 4.0, espnId: 102, c1: '#FFE667', c2: '#005187', code: 'VIL', pattern: 'halves' },
+            { name: 'Real Betis', league: 'laliga', stars: 4.0, espnId: 244, c1: '#0BB363', c2: '#FFFFFF', code: 'BET', pattern: 'stripes' },
+            { name: 'Girona', league: 'laliga', stars: 4.0, espnId: 9812, c1: '#CE1126', c2: '#FFFFFF', code: 'GIR', pattern: 'stripes' },
+            { name: 'Sevilla', league: 'laliga', stars: 4.0, espnId: 243, c1: '#D4021D', c2: '#FFFFFF', code: 'SEV', pattern: 'halves' },
+            { name: 'Valencia', league: 'laliga', stars: 4.0, espnId: 94, c1: '#FF6600', c2: '#111111', code: 'VAL', pattern: 'halves' },
+            { name: 'Celta Vigo', league: 'laliga', stars: 4.0, espnId: 85, c1: '#8AC3EE', c2: '#D50032', code: 'CEL', pattern: 'halves' },
+            { name: 'Osasuna', league: 'laliga', stars: 4.0, espnId: 97, c1: '#D91A21', c2: '#0A346F', code: 'OSA', pattern: 'halves' },
+            { name: 'Getafe', league: 'laliga', stars: 4.0, espnId: 2922, c1: '#005999', c2: '#E30613', code: 'GET', pattern: 'halves' },
+            { name: 'Rayo Vallecano', league: 'laliga', stars: 4.0, espnId: 101, c1: '#E53027', c2: '#FFFFFF', code: 'RAY', pattern: 'diag' },
+            { name: 'Mallorca', league: 'laliga', stars: 4.0, espnId: 84, c1: '#E20613', c2: '#111111', code: 'MLL', pattern: 'halves' },
+            { name: 'Las Palmas', league: 'laliga', stars: 3.5, espnId: 98, c1: '#FFE400', c2: '#004A99', code: 'LPA', pattern: 'halves' },
+            { name: 'Deportivo Alavés', league: 'laliga', stars: 3.5, espnId: 96, c1: '#0057A3', c2: '#FFFFFF', code: 'ALA', pattern: 'stripes' },
+            { name: 'Espanyol', league: 'laliga', stars: 3.5, espnId: 88, c1: '#007FC8', c2: '#FFFFFF', code: 'ESP', pattern: 'stripes' },
+            { name: 'Real Valladolid', league: 'laliga', stars: 3.5, espnId: 95, c1: '#592C82', c2: '#FFFFFF', code: 'VLD', pattern: 'stripes' },
+            { name: 'Leganés', league: 'laliga', stars: 3.5, espnId: 17534, c1: '#0055A4', c2: '#FFFFFF', code: 'LEG', pattern: 'stripes' },
+
+            // ================= 🇮🇹 SERIE A (20) =================
+            { name: 'Inter', league: 'seriea', stars: 5.0, espnId: 110, c1: '#010E80', c2: '#111111', code: 'INT', pattern: 'stripes' },
+            { name: 'AC Milan', league: 'seriea', stars: 4.5, espnId: 103, c1: '#FB090B', c2: '#111111', code: 'MIL', pattern: 'stripes' },
+            { name: 'Juventus', league: 'seriea', stars: 4.5, espnId: 111, c1: '#111111', c2: '#FFFFFF', code: 'JUV', pattern: 'stripes' },
+            { name: 'Napoli', league: 'seriea', stars: 4.5, espnId: 114, c1: '#12A0D7', c2: '#003C82', code: 'NAP', pattern: 'halves' },
+            { name: 'Atalanta', league: 'seriea', stars: 4.5, espnId: 105, c1: '#1E71B8', c2: '#111111', code: 'ATA', pattern: 'stripes' },
+            { name: 'AS Roma', league: 'seriea', stars: 4.5, espnId: 104, c1: '#8E1F2F', c2: '#F0BC42', code: 'ROM', pattern: 'halves' },
+            { name: 'Lazio', league: 'seriea', stars: 4.5, espnId: 112, c1: '#87D8F7', c2: '#FFFFFF', code: 'LAZ', pattern: 'halves' },
+            { name: 'Fiorentina', league: 'seriea', stars: 4.0, espnId: 109, c1: '#482E92', c2: '#E30613', code: 'FIO', pattern: 'halves' },
+            { name: 'Bologna', league: 'seriea', stars: 4.0, espnId: 107, c1: '#1A2F48', c2: '#A21C26', code: 'BOL', pattern: 'stripes' },
+            { name: 'Torino', league: 'seriea', stars: 4.0, espnId: 239, c1: '#8A1E03', c2: '#FFFFFF', code: 'TOR', pattern: 'halves' },
+            { name: 'Udinese', league: 'seriea', stars: 3.5, espnId: 118, c1: '#111111', c2: '#FFFFFF', code: 'UDI', pattern: 'stripes' },
+            { name: 'Genoa', league: 'seriea', stars: 3.5, espnId: 3263, c1: '#AD1919', c2: '#0F2537', code: 'GEN', pattern: 'halves' },
+            { name: 'Monza', league: 'seriea', stars: 3.5, espnId: 4007, c1: '#E30613', c2: '#FFFFFF', code: 'MON', pattern: 'halves' },
+            { name: 'Lecce', league: 'seriea', stars: 3.5, espnId: 113, c1: '#FFED00', c2: '#E30613', code: 'LEC', pattern: 'stripes' },
+            { name: 'Hellas Verona', league: 'seriea', stars: 3.5, espnId: 119, c1: '#002F6C', c2: '#FFD100', code: 'VER', pattern: 'halves' },
+            { name: 'Cagliari', league: 'seriea', stars: 3.5, espnId: 2925, c1: '#A50034', c2: '#00234C', code: 'CAG', pattern: 'halves' },
+            { name: 'Empoli', league: 'seriea', stars: 3.5, espnId: 2574, c1: '#00579C', c2: '#FFFFFF', code: 'EMP', pattern: 'halves' },
+            { name: 'Parma', league: 'seriea', stars: 3.5, espnId: 115, c1: '#FFD100', c2: '#002F6C', code: 'PAR', pattern: 'diag' },
+            { name: 'Como', league: 'seriea', stars: 3.5, espnId: 2572, c1: '#0057B8', c2: '#FFFFFF', code: 'COM', pattern: 'halves' },
+            { name: 'Venezia', league: 'seriea', stars: 3.5, espnId: 17530, c1: '#FF6600', c2: '#006847', code: 'VEN', pattern: 'stripes' },
+
+            // ================= 🇩🇪 BUNDESLIGA (18) =================
+            { name: 'Bayern Münih', league: 'bundesliga', stars: 5.0, espnId: 132, c1: '#DC052D', c2: '#0066B2', code: 'FCB', pattern: 'diag' },
+            { name: 'Bayer Leverkusen', league: 'bundesliga', stars: 5.0, espnId: 131, c1: '#E32221', c2: '#111111', code: 'B04', pattern: 'halves' },
+            { name: 'Borussia Dortmund', league: 'bundesliga', stars: 4.5, espnId: 124, c1: '#FDE100', c2: '#111111', code: 'BVB', pattern: 'halves' },
+            { name: 'RB Leipzig', league: 'bundesliga', stars: 4.5, espnId: 11420, c1: '#DD0741', c2: '#001F47', code: 'RBL', pattern: 'halves' },
+            { name: 'VfB Stuttgart', league: 'bundesliga', stars: 4.0, espnId: 134, c1: '#E32219', c2: '#FFFFFF', code: 'VFB', pattern: 'diag' },
+            { name: 'Eintracht Frankfurt', league: 'bundesliga', stars: 4.0, espnId: 125, c1: '#E1000F', c2: '#111111', code: 'SGE', pattern: 'stripes' },
+            { name: 'Wolfsburg', league: 'bundesliga', stars: 4.0, espnId: 138, c1: '#65B32E', c2: '#FFFFFF', code: 'WOB', pattern: 'halves' },
+            { name: 'Borussia Mönchengladbach', league: 'bundesliga', stars: 4.0, espnId: 268, c1: '#111111', c2: '#009E49', code: 'BMG', pattern: 'stripes' },
+            { name: 'Werder Bremen', league: 'bundesliga', stars: 4.0, espnId: 137, c1: '#1D9053', c2: '#FFFFFF', code: 'SVW', pattern: 'diag' },
+            { name: 'SC Freiburg', league: 'bundesliga', stars: 4.0, espnId: 126, c1: '#E30613', c2: '#111111', code: 'SCF', pattern: 'stripes' },
+            { name: 'TSG Hoffenheim', league: 'bundesliga', stars: 4.0, espnId: 7911, c1: '#1C63B7', c2: '#FFFFFF', code: 'TSG', pattern: 'diag' },
+            { name: 'FC Augsburg', league: 'bundesliga', stars: 3.5, espnId: 3841, c1: '#BA3733', c2: '#006837', code: 'FCA', pattern: 'halves' },
+            { name: 'Mainz 05', league: 'bundesliga', stars: 3.5, espnId: 2950, c1: '#C3141E', c2: '#FFFFFF', code: 'M05', pattern: 'halves' },
+            { name: 'Union Berlin', league: 'bundesliga', stars: 4.0, espnId: 598, c1: '#D4011D', c2: '#FFD100', code: 'FCU', pattern: 'halves' },
+            { name: 'VfL Bochum', league: 'bundesliga', stars: 3.5, espnId: 121, c1: '#005CA9', c2: '#FFFFFF', code: 'BOC', pattern: 'halves' },
+            { name: 'St. Pauli', league: 'bundesliga', stars: 3.5, espnId: 270, c1: '#624839', c2: '#FFFFFF', code: 'STP', pattern: 'halves' },
+            { name: 'Heidenheim', league: 'bundesliga', stars: 3.5, espnId: 6418, c1: '#E2001A', c2: '#003E7E', code: 'FCH', pattern: 'halves' },
+            { name: 'Holstein Kiel', league: 'bundesliga', stars: 3.5, espnId: 6894, c1: '#005CA9', c2: '#E30613', code: 'KSV', pattern: 'halves' },
+
+            // ================= 🇫🇷 LIGUE 1 (18) =================
+            { name: 'PSG', league: 'ligue1', stars: 5.0, espnId: 160, c1: '#004170', c2: '#DA291C', code: 'PSG', pattern: 'stripes' },
+            { name: 'AS Monaco', league: 'ligue1', stars: 4.5, espnId: 174, c1: '#E51B22', c2: '#FFFFFF', code: 'ASM', pattern: 'diag' },
+            { name: 'Olympique Marseille', league: 'ligue1', stars: 4.5, espnId: 176, c1: '#2FAEE0', c2: '#FFFFFF', code: 'OM', pattern: 'halves' },
+            { name: 'LOSC Lille', league: 'ligue1', stars: 4.5, espnId: 166, c1: '#E01E13', c2: '#1E2243', code: 'LIL', pattern: 'halves' },
+            { name: 'Olympique Lyon', league: 'ligue1', stars: 4.0, espnId: 167, c1: '#14387F', c2: '#DA291C', code: 'OL', pattern: 'diag' },
+            { name: 'OGC Nice', league: 'ligue1', stars: 4.0, espnId: 2502, c1: '#D61016', c2: '#111111', code: 'NIC', pattern: 'stripes' },
+            { name: 'RC Lens', league: 'ligue1', stars: 4.0, espnId: 175, c1: '#EC1C24', c2: '#FFF200', code: 'RCL', pattern: 'stripes' },
+            { name: 'Stade Rennais', league: 'ligue1', stars: 4.0, espnId: 169, c1: '#E30613', c2: '#111111', code: 'REN', pattern: 'stripes' },
+            { name: 'Stade Brestois', league: 'ligue1', stars: 4.0, espnId: 6997, c1: '#E30613', c2: '#FFFFFF', code: 'SB29', pattern: 'halves' },
+            { name: 'Stade de Reims', league: 'ligue1', stars: 3.5, espnId: 3243, c1: '#D71920', c2: '#FFFFFF', code: 'SDR', pattern: 'halves' },
+            { name: 'Toulouse FC', league: 'ligue1', stars: 3.5, espnId: 179, c1: '#512B81', c2: '#FFFFFF', code: 'TFC', pattern: 'stripes' },
+            { name: 'RC Strasbourg', league: 'ligue1', stars: 3.5, espnId: 180, c1: '#009FE3', c2: '#FFFFFF', code: 'RCS', pattern: 'diag' },
+            { name: 'Montpellier', league: 'ligue1', stars: 3.5, espnId: 274, c1: '#002B5C', c2: '#FF6600', code: 'MHS', pattern: 'halves' },
+            { name: 'FC Nantes', league: 'ligue1', stars: 3.5, espnId: 165, c1: '#FFE600', c2: '#009640', code: 'FCN', pattern: 'stripes' },
+            { name: 'Saint-Étienne', league: 'ligue1', stars: 3.5, espnId: 178, c1: '#008D36', c2: '#FFFFFF', code: 'ASSE', pattern: 'stripes' },
+            { name: 'Auxerre', league: 'ligue1', stars: 3.5, espnId: 172, c1: '#005CA9', c2: '#FFFFFF', code: 'AJA', pattern: 'halves' },
+            { name: 'Angers', league: 'ligue1', stars: 3.5, espnId: 7868, c1: '#111111', c2: '#FFFFFF', code: 'SCO', pattern: 'stripes' },
+            { name: 'Le Havre', league: 'ligue1', stars: 3.5, espnId: 3236, c1: '#75BEE9', c2: '#13254B', code: 'HAC', pattern: 'halves' },
+
+            // ================= 🌍 MİLLİ TAKIMLAR (31) =================
+            { name: 'Türkiye', league: 'national', stars: 4.5, iso: 'tr', c1: '#E30A17', c2: '#FFFFFF', code: 'TUR', pattern: 'halves' },
+            { name: 'Fransa', league: 'national', stars: 5.0, iso: 'fr', c1: '#002395', c2: '#ED2939', code: 'FRA', pattern: 'stripes' },
+            { name: 'Arjantin', league: 'national', stars: 5.0, iso: 'ar', c1: '#74ACDF', c2: '#FFFFFF', code: 'ARG', pattern: 'stripes' },
+            { name: 'İngiltere', league: 'national', stars: 5.0, iso: 'gb-eng', c1: '#FFFFFF', c2: '#CE1124', code: 'ENG', pattern: 'halves' },
+            { name: 'İspanya', league: 'national', stars: 5.0, iso: 'es', c1: '#AA151B', c2: '#F1BF00', code: 'ESP', pattern: 'halves' },
+            { name: 'Brezilya', league: 'national', stars: 5.0, iso: 'br', c1: '#FFDF00', c2: '#009C3B', code: 'BRA', pattern: 'diag' },
+            { name: 'Portekiz', league: 'national', stars: 5.0, iso: 'pt', c1: '#FF0000', c2: '#006600', code: 'POR', pattern: 'halves' },
+            { name: 'Almanya', league: 'national', stars: 5.0, iso: 'de', c1: '#111111', c2: '#FFCE00', code: 'GER', pattern: 'stripes' },
+            { name: 'İtalya', league: 'national', stars: 4.5, iso: 'it', c1: '#0064AA', c2: '#009246', code: 'ITA', pattern: 'halves' },
+            { name: 'Hollanda', league: 'national', stars: 4.5, iso: 'nl', c1: '#F36C21', c2: '#21468B', code: 'NED', pattern: 'halves' },
+            { name: 'Belçika', league: 'national', stars: 4.5, iso: 'be', c1: '#E30613', c2: '#FFD100', code: 'BEL', pattern: 'halves' },
+            { name: 'Hırvatistan', league: 'national', stars: 4.5, iso: 'hr', c1: '#FF0000', c2: '#0093DD', code: 'CRO', pattern: 'stripes' },
+            { name: 'Uruguay', league: 'national', stars: 4.5, iso: 'uy', c1: '#5BC2E7', c2: '#111111', code: 'URU', pattern: 'halves' },
+            { name: 'Kolombiya', league: 'national', stars: 4.5, iso: 'co', c1: '#FCD116', c2: '#003893', code: 'COL', pattern: 'halves' },
+            { name: 'Fas', league: 'national', stars: 4.5, iso: 'ma', c1: '#C1272D', c2: '#006233', code: 'MAR', pattern: 'halves' },
+            { name: 'Japonya', league: 'national', stars: 4.0, iso: 'jp', c1: '#000555', c2: '#BC002D', code: 'JPN', pattern: 'halves' },
+            { name: 'Güney Kore', league: 'national', stars: 4.0, iso: 'kr', c1: '#EC0F32', c2: '#003478', code: 'KOR', pattern: 'halves' },
+            { name: 'ABD', league: 'national', stars: 4.0, iso: 'us', c1: '#002868', c2: '#BF0A30', code: 'USA', pattern: 'stripes' },
+            { name: 'Meksika', league: 'national', stars: 4.0, iso: 'mx', c1: '#006847', c2: '#CE1126', code: 'MEX', pattern: 'halves' },
+            { name: 'İsviçre', league: 'national', stars: 4.0, iso: 'ch', c1: '#D52B1E', c2: '#FFFFFF', code: 'SUI', pattern: 'halves' },
+            { name: 'Danimarka', league: 'national', stars: 4.0, iso: 'dk', c1: '#C60C30', c2: '#FFFFFF', code: 'DEN', pattern: 'halves' },
+            { name: 'Avusturya', league: 'national', stars: 4.0, iso: 'at', c1: '#ED2939', c2: '#FFFFFF', code: 'AUT', pattern: 'halves' },
+            { name: 'Sırbistan', league: 'national', stars: 4.0, iso: 'rs', c1: '#C6363C', c2: '#0C4076', code: 'SRB', pattern: 'halves' },
+            { name: 'Ukrayna', league: 'national', stars: 4.0, iso: 'ua', c1: '#FFD700', c2: '#0057B7', code: 'UKR', pattern: 'halves' },
+            { name: 'Polonya', league: 'national', stars: 4.0, iso: 'pl', c1: '#DC143C', c2: '#FFFFFF', code: 'POL', pattern: 'halves' },
+            { name: 'İskoçya', league: 'national', stars: 3.5, iso: 'gb-sct', c1: '#005EB8', c2: '#FFFFFF', code: 'SCO', pattern: 'diag' },
+            { name: 'İsveç', league: 'national', stars: 4.0, iso: 'se', c1: '#FECC02', c2: '#006AA7', code: 'SWE', pattern: 'halves' },
+            { name: 'Norveç', league: 'national', stars: 4.0, iso: 'no', c1: '#BA0C2F', c2: '#00205B', code: 'NOR', pattern: 'halves' },
+            { name: 'Nijerya', league: 'national', stars: 4.0, iso: 'ng', c1: '#008751', c2: '#FFFFFF', code: 'NGA', pattern: 'stripes' },
+            { name: 'Senegal', league: 'national', stars: 4.0, iso: 'sn', c1: '#00853F', c2: '#FDEF42', code: 'SEN', pattern: 'halves' },
+            { name: 'Mısır', league: 'national', stars: 4.0, iso: 'eg', c1: '#CE1126', c2: '#111111', code: 'EGY', pattern: 'halves' }
+        ];
+
+        const TEAM_ALIASES = {
+            'man city': 'Manchester City',
+            'man united': 'Manchester United',
+            'tottenham': 'Tottenham Hotspur',
+            'atletico madrid': 'Atlético Madrid',
+            'milan': 'AC Milan',
+            'roma': 'AS Roma',
+            'paris saint-germain': 'PSG'
+        };
+
+        // --- STATE ---
+        let players = {
+            p1: 'Emre',
+            p2: 'Ömer'
+        };
+        let matches = [];
+        let penaltyWinnerSelection = 'p1';
+        let pendingConfirmAction = null;
+        let lastRandomPool = 'elite';
+        let activePickerTarget = 'p1';
+        let activeLeagueTab = 'all';
+        let drawnRandomTeams = { p1: 'Real Madrid', p2: 'Manchester City' };
+
+        // --- TEAM LOOKUP & DUAL-LAYER CREST RENDERER ---
+        function getTeamObj(teamName) {
+            if (!teamName) return TEAMS_DB[0];
+            const clean = teamName.trim();
+            const lower = clean.toLowerCase();
+            const aliased = TEAM_ALIASES[lower] || clean;
+            const found = TEAMS_DB.find(t => t.name.toLowerCase() === aliased.toLowerCase());
+            if (found) return found;
+
+            const words = clean.split(/\s+/);
+            const code = words.length > 1 
+                ? (words[0][0] + words[1][0]).toUpperCase()
+                : clean.slice(0, 3).toUpperCase();
+            return {
+                name: clean,
+                league: 'custom',
+                stars: 4.0,
+                espnId: null,
+                iso: null,
+                c1: '#1e293b',
+                c2: '#10b981',
+                code,
+                pattern: 'diag'
+            };
+        }
+
+        function getTeamLogoUrl(teamObj) {
+            if (teamObj.iso) {
+                return `https://flagcdn.com/w80/${teamObj.iso}.png`;
+            }
+            if (teamObj.espnId) {
+                return `https://a.espncdn.com/i/teamlogos/soccer/500/${teamObj.espnId}.png`;
+            }
+            return null;
+        }
+
+        function buildInlineSvgShield(teamObj, sizePx = 36, forceVisible = false) {
+            const c1 = teamObj.c1 || '#10b981';
+            const c2 = teamObj.c2 || '#06b6d4';
+            const code = escapeHtml(teamObj.code || teamObj.name.slice(0, 3).toUpperCase());
+            const displayStyle = forceVisible ? 'display:block;' : 'display:none;';
+
+            let patternSvg = '';
+            if (teamObj.pattern === 'stripes') {
+                patternSvg = `
+                    <rect x="20" y="6" width="12" height="54" fill="${c2}" opacity="0.9"/>
+                    <rect x="40" y="6" width="10" height="54" fill="${c2}" opacity="0.9"/>
+                `;
+            } else if (teamObj.pattern === 'diag') {
+                patternSvg = `<polygon points="8,48 48,8 58,18 18,58" fill="${c2}" opacity="0.9"/>`;
+            } else {
+                patternSvg = `<path d="M32 4 L56 12 V30 C56 46 32 58 32 60 Z" fill="${c2}" opacity="0.9"/>`;
+            }
+
+            return `
+                <svg viewBox="0 0 64 64" width="${sizePx}" height="${sizePx}" style="${displayStyle}" class="shrink-0 drop-shadow">
+                    <path d="M32 4 L56 12 V30 C56 46 32 58 32 60 C32 58 8 46 8 30 V12 Z" fill="${c1}" />
+                    ${patternSvg}
+                    <path d="M32 4 L56 12 V30 C56 46 32 58 32 60 C32 58 8 46 8 30 V12 Z" fill="none" stroke="#eab308" stroke-width="3.5" />
+                    <rect x="10" y="22" width="44" height="17" rx="4" fill="#090d16" fill-opacity="0.82" />
+                    <text x="32" y="34" text-anchor="middle" fill="#ffffff" font-family="Chakra Petch, sans-serif" font-weight="700" font-size="11.5">${code}</text>
+                </svg>
+            `;
+        }
+
+        function renderTeamCrest(teamNameOrObj, sizeClass = 'w-9 h-9', sizePx = 36) {
+            const teamObj = typeof teamNameOrObj === 'string' ? getTeamObj(teamNameOrObj) : teamNameOrObj;
+            const logoUrl = getTeamLogoUrl(teamObj);
+            const isFlag = Boolean(teamObj.iso);
+
+            if (!logoUrl) {
+                return `<div class="${sizeClass} flex items-center justify-center shrink-0">${buildInlineSvgShield(teamObj, sizePx, true)}</div>`;
+            }
+
+            const imgFit = isFlag ? 'object-cover rounded-md border border-slate-700/80 shadow-sm' : 'object-contain drop-shadow';
+            return `
+                <div class="${sizeClass} flex items-center justify-center shrink-0 relative">
+                    <img 
+                        src="${logoUrl}" 
+                        alt="${escapeHtml(teamObj.name)}" 
+                        loading="lazy"
+                        class="w-full h-full ${imgFit}"
+                        onerror="this.style.display='none'; if(this.nextElementSibling) this.nextElementSibling.style.display='block';"
+                    >
+                    ${buildInlineSvgShield(teamObj, sizePx, false)}
+                </div>
+            `;
+        }
+
+        function formatStars(stars) {
+            const full = Math.floor(stars);
+            const half = stars % 1 >= 0.5;
+            return '★'.repeat(full) + (half ? '½' : '') + ` (${stars.toFixed(1)})`;
+        }
+
+        // --- INITIALIZATION ---
+        window.addEventListener('DOMContentLoaded', () => {
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('matchDate').value = todayStr;
+
+            loadData();
+            setupEventListeners();
+            renderLeagueTabs();
+            updateSelectedTeamCardsUI();
+            renderAll();
+            lucide.createIcons();
+        });
+
+        function loadData() {
+            const savedPlayers = localStorage.getItem(STORAGE_KEY_PLAYERS);
+            if (savedPlayers) {
+                try {
+                    players = JSON.parse(savedPlayers);
+                } catch (e) {
+                    console.error('Oyuncu verisi okunamadı:', e);
+                }
+            }
+
+            const savedMatches = localStorage.getItem(STORAGE_KEY_MATCHES);
+            if (savedMatches !== null) {
+                try {
+                    matches = JSON.parse(savedMatches);
+                } catch (e) {
+                    matches = [];
+                }
+            } else {
+                seedSampleMatches();
+            }
+
+            document.getElementById('p1NameInput').value = players.p1;
+            document.getElementById('p2NameInput').value = players.p2;
+        }
+
+        function seedSampleMatches() {
+            players = {
+                p1: "Emre",
+                p2: "Ömer"
+            };
+            matches = [
+                {
+                    "id": "m-1794427143056",
+                    "date": "2026-11-11",
+                    "p1Team": "Galatasaray",
+                    "p2Team": "AS Roma",
+                    "p1Goals": 6,
+                    "p2Goals": 5,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794427162622",
+                    "date": "2026-11-11",
+                    "p1Team": "Galatasaray",
+                    "p2Team": "Como",
+                    "p1Goals": 10,
+                    "p2Goals": 4,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794427181316",
+                    "date": "2026-11-11",
+                    "p1Team": "Galatasaray",
+                    "p2Team": "Galatasaray",
+                    "p1Goals": 6,
+                    "p2Goals": 6,
+                    "matchType": "Penaltılar",
+                    "penaltyWinner": "p1",
+                    "note": ""
+                },
+                {
+                    "id": "m-1794427213959",
+                    "date": "2026-11-11",
+                    "p1Team": "Real Madrid",
+                    "p2Team": "Barcelona",
+                    "p1Goals": 8,
+                    "p2Goals": 8,
+                    "matchType": "Penaltılar",
+                    "penaltyWinner": "p2",
+                    "note": ""
+                },
+                {
+                    "id": "m-1794430789479",
+                    "date": "2026-11-11",
+                    "p1Team": "Bayern Münih",
+                    "p2Team": "PSG",
+                    "p1Goals": 3,
+                    "p2Goals": 5,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794430799994",
+                    "date": "2026-11-11",
+                    "p1Team": "Bayern Münih",
+                    "p2Team": "PSG",
+                    "p1Goals": 2,
+                    "p2Goals": 10,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794427288702",
+                    "date": "2026-11-11",
+                    "p1Team": "Galatasaray",
+                    "p2Team": "Paris Saint-Germain",
+                    "p1Goals": 8,
+                    "p2Goals": 4,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794427304622",
+                    "date": "2026-11-11",
+                    "p1Team": "Galatasaray",
+                    "p2Team": "Liverpool",
+                    "p1Goals": 4,
+                    "p2Goals": 5,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794427318164",
+                    "date": "2026-11-11",
+                    "p1Team": "Galatasaray",
+                    "p2Team": "Arsenal",
+                    "p1Goals": 6,
+                    "p2Goals": 5,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794429449975",
+                    "date": "2026-11-11",
+                    "p1Team": "Real Madrid",
+                    "p2Team": "Barcelona",
+                    "p1Goals": 5,
+                    "p2Goals": 7,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794427436245",
+                    "date": "2026-11-11",
+                    "p1Team": "Galatasaray",
+                    "p2Team": "Real Madrid Legends",
+                    "p1Goals": 11,
+                    "p2Goals": 11,
+                    "matchType": "Penaltılar",
+                    "penaltyWinner": "p1",
+                    "note": ""
+                },
+                {
+                    "id": "m-1794429482766",
+                    "date": "2026-11-11",
+                    "p1Team": "PSG",
+                    "p2Team": "Bayern Münih",
+                    "p1Goals": 8,
+                    "p2Goals": 4,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794429511139",
+                    "date": "2026-11-11",
+                    "p1Team": "Manchester City",
+                    "p2Team": "Atlético Madrid",
+                    "p1Goals": 2,
+                    "p2Goals": 8,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                },
+                {
+                    "id": "m-1794429534311",
+                    "date": "2026-11-11",
+                    "p1Team": "Galatasaray",
+                    "p2Team": "Atlético Madrid",
+                    "p1Goals": 2,
+                    "p2Goals": 6,
+                    "matchType": "Normal Süre",
+                    "penaltyWinner": null,
+                    "note": ""
+                }
+            ];
+            localStorage.setItem(STORAGE_KEY_MATCHES, JSON.stringify(matches));
+            localStorage.setItem(STORAGE_KEY_PLAYERS, JSON.stringify(players));
+            localStorage.removeItem(STORAGE_KEY_SAMPLE);
+        }
+
+        function saveData() {
+            localStorage.setItem(STORAGE_KEY_MATCHES, JSON.stringify(matches));
+            localStorage.setItem(STORAGE_KEY_PLAYERS, JSON.stringify(players));
+        }
+
+        function setupEventListeners() {
+            const p1Input = document.getElementById('p1NameInput');
+            const p2Input = document.getElementById('p2NameInput');
+
+            const updateNames = () => {
+                players.p1 = p1Input.value.trim() || 'Oyuncu 1';
+                players.p2 = p2Input.value.trim() || 'Oyuncu 2';
+                saveData();
+                renderAll();
+            };
+
+            p1Input.addEventListener('input', updateNames);
+            p2Input.addEventListener('input', updateNames);
+
+            document.getElementById('p1Goals').addEventListener('input', handleMatchTypeChange);
+            document.getElementById('p2Goals').addEventListener('input', handleMatchTypeChange);
+
+            document.getElementById('matchForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                addMatch();
+            });
+
+            document.getElementById('modalCancelBtn').addEventListener('click', closeConfirmModal);
+            document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+                if (typeof pendingConfirmAction === 'function') {
+                    pendingConfirmAction();
+                }
+                closeConfirmModal();
+            });
+        }
+
+        // --- VISUAL TEAM PICKER MODAL LOGIC ---
+        function selectTeamForPlayer(playerKey, teamName) {
+            document.getElementById(playerKey === 'p1' ? 'p1Team' : 'p2Team').value = teamName;
+            updateSelectedTeamCardsUI();
+            if (!document.getElementById('teamPickerModal').classList.contains('hidden')) {
+                renderTeamPickerGrid();
+                updatePickerFooterPreview();
+            }
+        }
+
+        function updateSelectedTeamCardsUI() {
+            const p1TeamName = document.getElementById('p1Team').value || 'Real Madrid';
+            const p2TeamName = document.getElementById('p2Team').value || 'Manchester City';
+
+            const t1 = getTeamObj(p1TeamName);
+            const t2 = getTeamObj(p2TeamName);
+
+            document.getElementById('p1SelectedCrest').innerHTML = renderTeamCrest(t1, 'w-11 h-11', 44);
+            document.getElementById('p1SelectedName').textContent = t1.name;
+            document.getElementById('p1SelectedMeta').innerHTML = `${LEAGUE_LABELS[t1.league] || '⚽ Özel Kulüp'} • <span class="text-amber-400 font-semibold">${formatStars(t1.stars)}</span>`;
+
+            document.getElementById('p2SelectedCrest').innerHTML = renderTeamCrest(t2, 'w-11 h-11', 44);
+            document.getElementById('p2SelectedName').textContent = t2.name;
+            document.getElementById('p2SelectedMeta').innerHTML = `${LEAGUE_LABELS[t2.league] || '⚽ Özel Kulüp'} • <span class="text-amber-400 font-semibold">${formatStars(t2.stars)}</span>`;
+        }
+
+        function openTeamPicker(targetPlayerKey) {
+            activePickerTarget = targetPlayerKey || 'p1';
+            document.getElementById('teamSearchInput').value = '';
+            updatePickerTargetHeader();
+            renderLeagueTabs();
+            renderTeamPickerGrid();
+            updatePickerFooterPreview();
+
+            const modal = document.getElementById('teamPickerModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => document.getElementById('teamSearchInput').focus(), 50);
+            lucide.createIcons();
+        }
+
+        function closeTeamPicker() {
+            const modal = document.getElementById('teamPickerModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function switchPickerTarget(targetKey) {
+            activePickerTarget = targetKey;
+            updatePickerTargetHeader();
+            renderTeamPickerGrid();
+        }
+
+        function updatePickerTargetHeader() {
+            document.getElementById('pickerTabP1Name').textContent = `${players.p1} İçin Seç`;
+            document.getElementById('pickerTabP2Name').textContent = `${players.p2} İçin Seç`;
+            document.getElementById('footerP1Label').textContent = `${players.p1}:`;
+            document.getElementById('footerP2Label').textContent = `${players.p2}:`;
+
+            const tab1 = document.getElementById('pickerTabP1');
+            const tab2 = document.getElementById('pickerTabP2');
+            const badge = document.getElementById('pickerHeaderBadge');
+
+            if (activePickerTarget === 'p1') {
+                tab1.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5';
+                tab2.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition flex items-center gap-1.5';
+                badge.className = 'w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400';
+            } else {
+                tab2.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg
